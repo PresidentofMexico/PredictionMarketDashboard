@@ -1,15 +1,12 @@
 import type { Market, PolymarketMarket } from '../types';
 import { normalizePolymarketMarket } from './normalization';
-
-// const POLYMARKET_API_BASE = 'https://gamma-api.polymarket.com';
-// Will be used when real API integration is added
+import { POLYMARKET_CONFIG, shouldUseMockData, getPolymarketHeaders } from '../config/api';
 
 export class PolymarketService {
-  // private baseUrl: string;
-  // Will be used when real API integration is added
+  private baseUrl: string;
 
   constructor() {
-    // this.baseUrl = POLYMARKET_API_BASE;
+    this.baseUrl = POLYMARKET_CONFIG.apiUrl;
   }
 
   async getMarkets(_params?: {
@@ -19,37 +16,60 @@ export class PolymarketService {
     closed?: boolean;
   }): Promise<Market[]> {
     try {
-      // Mock data for demonstration since we don't have API keys
-      return this.getMockMarkets();
+      // Use mock data in development mode
+      if (shouldUseMockData()) {
+        return this.getMockMarkets();
+      }
       
-      // Real implementation would be:
-      // const queryParams = new URLSearchParams();
-      // if (params?.limit) queryParams.set('limit', params.limit.toString());
-      // if (params?.offset) queryParams.set('offset', params.offset.toString());
-      // if (params?.active !== undefined) queryParams.set('active', params.active.toString());
+      // Real API implementation
+      const queryParams = new URLSearchParams();
+      if (_params?.limit) queryParams.set('limit', _params.limit.toString());
+      if (_params?.offset) queryParams.set('offset', _params.offset.toString());
+      if (_params?.active !== undefined) queryParams.set('active', _params.active.toString());
       
-      // const response = await fetch(`${this.baseUrl}/markets?${queryParams}`);
-      // const data = await response.json();
-      // return data.map(normalizePolymarketMarket);
+      const headers = getPolymarketHeaders();
+      const response = await fetch(`${this.baseUrl}/markets?${queryParams}`, {
+        headers,
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Polymarket API error: ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      return Array.isArray(data) ? data.map(normalizePolymarketMarket) : [];
     } catch (error) {
       console.error('Error fetching Polymarket markets:', error);
-      return [];
+      // Fallback to mock data on error
+      return this.getMockMarkets();
     }
   }
 
   async getMarket(id: string): Promise<Market | null> {
     try {
-      // Mock implementation
-      const markets = await this.getMockMarkets();
-      return markets.find((m) => m.id === id) || null;
+      // Use mock data in development mode
+      if (shouldUseMockData()) {
+        const markets = this.getMockMarkets();
+        return markets.find((m) => m.id === id) || null;
+      }
       
-      // Real implementation:
-      // const response = await fetch(`${this.baseUrl}/markets/${id}`);
-      // const data = await response.json();
-      // return normalizePolymarketMarket(data);
+      // Real API implementation
+      const headers = getPolymarketHeaders();
+      const response = await fetch(`${this.baseUrl}/markets/${id}`, {
+        headers,
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Polymarket API error: ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      return normalizePolymarketMarket(data);
     } catch (error) {
       console.error('Error fetching Polymarket market:', error);
-      return null;
+      // Fallback to mock data on error
+      const markets = this.getMockMarkets();
+      return markets.find((m) => m.id === id) || null;
     }
   }
 

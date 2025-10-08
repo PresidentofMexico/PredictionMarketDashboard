@@ -1,17 +1,12 @@
 import type { Market, KalshiMarket } from '../types';
 import { normalizeKalshiMarket } from './normalization';
+import { KALSHI_CONFIG, shouldUseMockData, getKalshiAuthHeaders } from '../config/api';
 
-// const KALSHI_API_BASE = 'https://api.kalshi.com/trade-api/v2';
-// Will be used when real API integration is added
-
-// Note: In a production app, you would use proper authentication
-// This is a simplified version for demonstration
 export class KalshiService {
-  // private baseUrl: string;
-  // Will be used when real API integration is added
+  private baseUrl: string;
 
   constructor() {
-    // this.baseUrl = KALSHI_API_BASE;
+    this.baseUrl = KALSHI_CONFIG.apiUrl;
   }
 
   async getMarkets(_params?: {
@@ -22,37 +17,60 @@ export class KalshiService {
     status?: string;
   }): Promise<Market[]> {
     try {
-      // Mock data for demonstration since we don't have API keys
-      return this.getMockMarkets();
+      // Use mock data in development mode or if no API key is configured
+      if (shouldUseMockData()) {
+        return this.getMockMarkets();
+      }
       
-      // Real implementation would be:
-      // const queryParams = new URLSearchParams();
-      // if (params?.limit) queryParams.set('limit', params.limit.toString());
-      // if (params?.cursor) queryParams.set('cursor', params.cursor);
-      // if (params?.status) queryParams.set('status', params.status);
+      // Real API implementation
+      const queryParams = new URLSearchParams();
+      if (_params?.limit) queryParams.set('limit', _params.limit.toString());
+      if (_params?.cursor) queryParams.set('cursor', _params.cursor);
+      if (_params?.status) queryParams.set('status', _params.status);
       
-      // const response = await fetch(`${this.baseUrl}/markets?${queryParams}`);
-      // const data = await response.json();
-      // return data.markets.map(normalizeKalshiMarket);
+      const headers = await getKalshiAuthHeaders();
+      const response = await fetch(`${this.baseUrl}/markets?${queryParams}`, {
+        headers,
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Kalshi API error: ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      return data.markets ? data.markets.map(normalizeKalshiMarket) : [];
     } catch (error) {
       console.error('Error fetching Kalshi markets:', error);
-      return [];
+      // Fallback to mock data on error
+      return this.getMockMarkets();
     }
   }
 
   async getMarket(ticker: string): Promise<Market | null> {
     try {
-      // Mock implementation
-      const markets = await this.getMockMarkets();
-      return markets.find((m) => m.id === ticker) || null;
+      // Use mock data in development mode or if no API key is configured
+      if (shouldUseMockData()) {
+        const markets = this.getMockMarkets();
+        return markets.find((m) => m.id === ticker) || null;
+      }
       
-      // Real implementation:
-      // const response = await fetch(`${this.baseUrl}/markets/${ticker}`);
-      // const data = await response.json();
-      // return normalizeKalshiMarket(data.market);
+      // Real API implementation
+      const headers = await getKalshiAuthHeaders();
+      const response = await fetch(`${this.baseUrl}/markets/${ticker}`, {
+        headers,
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Kalshi API error: ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      return data.market ? normalizeKalshiMarket(data.market) : null;
     } catch (error) {
       console.error('Error fetching Kalshi market:', error);
-      return null;
+      // Fallback to mock data on error
+      const markets = this.getMockMarkets();
+      return markets.find((m) => m.id === ticker) || null;
     }
   }
 
