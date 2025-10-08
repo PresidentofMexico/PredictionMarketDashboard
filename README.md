@@ -97,26 +97,46 @@ src/
 
 ## API Integration
 
-Currently using mock data. To integrate real APIs:
+The dashboard supports both mock data (default) and real API integration with Kalshi and Polymarket.
 
-### 1. Configure Environment Variables
+### Quick Start with Mock Data
 
-Create `.env.local`:
+The application works out of the box with mock data - no setup required!
 
-```env
-VITE_KALSHI_API_KEY=your_kalshi_key
-VITE_KALSHI_API_URL=https://api.kalshi.com/trade-api/v2
-VITE_POLYMARKET_API_URL=https://gamma-api.polymarket.com
-VITE_WEBSOCKET_URL=wss://your-websocket-url
+```bash
+npm run dev
 ```
 
-### 2. Update Service Files
+### Real API Integration
 
-Update `src/services/kalshi.ts` and `src/services/polymarket.ts` with real API calls.
+For real-time market data, see the comprehensive [API Setup Guide](docs/API_SETUP.md).
 
-### 3. Configure WebSocket
+#### Quick Configuration
 
-Update WebSocket URLs in your components that use `useWebSocket`.
+1. **Copy environment template:**
+   ```bash
+   cp .env.example .env.local
+   ```
+
+2. **Configure your credentials in `.env.local`:**
+   ```env
+   VITE_API_MODE=production
+   VITE_KALSHI_API_KEY=your_kalshi_key
+   VITE_KALSHI_API_URL=https://api.kalshi.com/trade-api/v2
+   VITE_POLYMARKET_API_URL=https://gamma-api.polymarket.com
+   ```
+
+3. **Restart the server:**
+   ```bash
+   npm run dev
+   ```
+
+#### API Providers
+
+- **Kalshi**: Requires API credentials (see [Kalshi Setup](docs/API_SETUP.md#kalshi-api-setup))
+- **Polymarket**: Public API, no authentication needed (see [Polymarket Setup](docs/API_SETUP.md#polymarket-api-setup))
+
+For detailed instructions, troubleshooting, and advanced configuration, see the [API Setup Guide](docs/API_SETUP.md).
 
 ## Available Scripts
 
@@ -133,7 +153,10 @@ Update WebSocket URLs in your components that use `useWebSocket`.
 - [x] Dashboard UI with filtering and sorting
 - [x] Market detail view with visualizations
 - [x] Performance optimizations
-- [ ] Real API integration
+- [x] Environment variable configuration
+- [x] API authentication setup with fallback support
+- [x] Comprehensive API documentation
+- [ ] Real API integration testing with live credentials
 - [ ] Advanced charting with Lightweight Charts
 - [ ] User authentication
 - [ ] Portfolio tracking
