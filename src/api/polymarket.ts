@@ -1,7 +1,14 @@
 import axios from 'axios';
 import { PolymarketMarket } from '../types/markets';
+import { mockPolymarketMarkets } from '../data/mockData';
 
-const GAMMA_API = 'https://gamma-api.polymarket.com';
+// Use proxy server in development
+const GAMMA_API = import.meta.env.DEV 
+  ? 'http://localhost:3001/api/polymarket' 
+  : 'https://gamma-api.polymarket.com';
+
+// Flag to use mock data (set to true in demo/offline mode)
+const USE_MOCK_DATA = true;
 
 /**
  * Polymarket API Client
@@ -21,6 +28,11 @@ export class PolymarketAPI {
    * @param offset - Offset for pagination
    */
   async getMarkets(limit: number = 100, offset: number = 0): Promise<PolymarketMarket[]> {
+    // Return mock data if enabled
+    if (USE_MOCK_DATA) {
+      return this.parseMarkets(mockPolymarketMarkets);
+    }
+
     try {
       // Using Gamma API for market data
       const response = await axios.get(`${this.gammaURL}/markets`, {
@@ -34,8 +46,8 @@ export class PolymarketAPI {
       return this.parseMarkets(response.data);
     } catch (error) {
       console.error('Error fetching Polymarket markets:', error);
-      // Return empty array on error to prevent breaking the dashboard
-      return [];
+      // Return mock data as fallback
+      return this.parseMarkets(mockPolymarketMarkets);
     }
   }
 

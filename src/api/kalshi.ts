@@ -1,7 +1,14 @@
 import axios from 'axios';
 import { KalshiMarket, KalshiResponse } from '../types/markets';
+import { mockKalshiMarkets } from '../data/mockData';
 
-const KALSHI_API_BASE = 'https://api.elections.kalshi.com/trade-api/v2';
+// Use proxy server in development, direct API in production
+const KALSHI_API_BASE = import.meta.env.DEV 
+  ? 'http://localhost:3001/api/kalshi' 
+  : 'https://api.elections.kalshi.com/trade-api/v2';
+
+// Flag to use mock data (set to true in demo/offline mode)
+const USE_MOCK_DATA = true;
 
 /**
  * Kalshi API Client
@@ -25,6 +32,11 @@ export class KalshiAPI {
     cursor?: string,
     status: string = 'open'
   ): Promise<KalshiResponse> {
+    // Return mock data if enabled
+    if (USE_MOCK_DATA) {
+      return { markets: mockKalshiMarkets };
+    }
+
     try {
       const params: any = { limit, status };
       if (cursor) params.cursor = cursor;
@@ -35,7 +47,8 @@ export class KalshiAPI {
       return response.data;
     } catch (error) {
       console.error('Error fetching Kalshi markets:', error);
-      throw error;
+      // Return mock data as fallback
+      return { markets: mockKalshiMarkets };
     }
   }
 

@@ -4,12 +4,21 @@
   "description": "Leverage API connections to Polymarket and Kalshi to establish an investment thesis in sports and entertainment.",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "tsx server.ts",
+    "dev:client": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "echo 'No linting configured'"
   },
-  "keywords": ["prediction-markets", "kalshi", "polymarket", "dashboard", "sports", "entertainment"],
+  "keywords": [
+    "prediction-markets",
+    "kalshi",
+    "polymarket",
+    "dashboard",
+    "sports",
+    "entertainment"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -17,12 +26,18 @@
     "@types/react-dom": "^19.2.1",
     "@vitejs/plugin-react": "^5.0.4",
     "axios": "^1.12.2",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "typescript": "^5.9.3",
     "vite": "^7.1.9"
   },
   "devDependencies": {
-    "@types/node": "^24.7.0"
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.7.0",
+    "concurrently": "^9.2.1",
+    "tsx": "^4.20.6"
   }
 }
