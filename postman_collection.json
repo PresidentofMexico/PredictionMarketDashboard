@@ -1,0 +1,154 @@
+{
+  "info": {
+    "name": "Prediction Market Dashboard APIs",
+    "description": "Collection of API endpoints for Kalshi and Polymarket prediction markets",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Kalshi API",
+      "item": [
+        {
+          "name": "Get All Markets",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api.elections.kalshi.com/trade-api/v2/markets?limit=100&status=open",
+              "protocol": "https",
+              "host": ["api", "elections", "kalshi", "com"],
+              "path": ["trade-api", "v2", "markets"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "100",
+                  "description": "Number of markets to return"
+                },
+                {
+                  "key": "status",
+                  "value": "open",
+                  "description": "Filter by status (open, closed, settled)"
+                }
+              ]
+            },
+            "description": "Fetch all available markets from Kalshi"
+          }
+        },
+        {
+          "name": "Get Events",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api.elections.kalshi.com/trade-api/v2/events?limit=50",
+              "protocol": "https",
+              "host": ["api", "elections", "kalshi", "com"],
+              "path": ["trade-api", "v2", "events"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Number of events to return"
+                }
+              ]
+            },
+            "description": "Fetch events from Kalshi (events contain multiple markets)"
+          }
+        },
+        {
+          "name": "Get Market Tickers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api.elections.kalshi.com/trade-api/v2/markets/tickers",
+              "protocol": "https",
+              "host": ["api", "elections", "kalshi", "com"],
+              "path": ["trade-api", "v2", "markets", "tickers"]
+            },
+            "description": "Get all available market tickers"
+          }
+        }
+      ],
+      "description": "Kalshi API endpoints for prediction markets"
+    },
+    {
+      "name": "Polymarket API",
+      "item": [
+        {
+          "name": "Get Markets (Gamma API)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://gamma-api.polymarket.com/markets?limit=100&active=true",
+              "protocol": "https",
+              "host": ["gamma-api", "polymarket", "com"],
+              "path": ["markets"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "100",
+                  "description": "Number of markets to return"
+                },
+                {
+                  "key": "active",
+                  "value": "true",
+                  "description": "Filter for active markets only"
+                }
+              ]
+            },
+            "description": "Fetch markets from Polymarket using Gamma API"
+          }
+        },
+        {
+          "name": "Get Markets by Tag",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://gamma-api.polymarket.com/markets?tag=sports&limit=50",
+              "protocol": "https",
+              "host": ["gamma-api", "polymarket", "com"],
+              "path": ["markets"],
+              "query": [
+                {
+                  "key": "tag",
+                  "value": "sports",
+                  "description": "Filter by tag (sports, entertainment, etc.)"
+                },
+                {
+                  "key": "limit",
+                  "value": "50"
+                }
+              ]
+            },
+            "description": "Get markets filtered by specific tags"
+          }
+        },
+        {
+          "name": "Get Market by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://gamma-api.polymarket.com/markets/:marketId",
+              "protocol": "https",
+              "host": ["gamma-api", "polymarket", "com"],
+              "path": ["markets", ":marketId"],
+              "variable": [
+                {
+                  "key": "marketId",
+                  "value": "",
+                  "description": "The market ID or condition ID"
+                }
+              ]
+            },
+            "description": "Get details for a specific market"
+          }
+        }
+      ],
+      "description": "Polymarket API endpoints for prediction markets"
+    }
+  ]
+}
