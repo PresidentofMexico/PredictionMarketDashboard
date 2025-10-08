@@ -1,12 +1,18 @@
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useRef } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { useMarkets } from '../../hooks/useMarkets';
+import { useMarketWebSocket } from '../../hooks/useMarketWebSocket';
 import { useDashboardStore } from '../../store/dashboardStore';
 import { MarketCard } from '../market/MarketCard';
 import type { Market } from '../../types';
 
 export const MarketList = () => {
-  const { data: markets, isLoading, error } = useMarkets();
+  const { data: markets = [], isLoading, error, refetch } = useMarkets();
   const { filters, sort, setSelectedMarketId } = useDashboardStore();
+  const parentRef = useRef<HTMLDivElement>(null);
+  
+  // Connect to WebSocket for real-time updates
+  const { isConnected } = useMarketWebSocket();
 
   // Filter and sort markets with memoization
   const filteredAndSortedMarkets = useMemo(() => {
@@ -72,6 +78,14 @@ export const MarketList = () => {
     return result;
   }, [markets, filters, sort]);
 
+  // Set up virtualization
+  const rowVirtualizer = useVirtualizer({
+    count: filteredAndSortedMarkets.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 200, // Approximate height of each market card
+    overscan: 5,
+  });
+
   // Memoized callback for market click
   const handleMarketClick = useCallback(
     (market: Market) => {
@@ -82,8 +96,12 @@ export const MarketList = () => {
 
   if (isLoading) {
     return (
-      <div style={{ textAlign: 'center', padding: '40px', color: '#6B7280' }}>
-        Loading markets...
+      <div style={{ padding: '16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '16px' }}>
+          {Array(6).fill(0).map((_, i) => (
+            <div key={i} style={{ height: '200px', backgroundColor: '#f3f4f6', borderRadius: '8px' }} />
+          ))}
+        </div>
       </div>
     );
   }
@@ -91,7 +109,10 @@ export const MarketList = () => {
   if (error) {
     return (
       <div style={{ textAlign: 'center', padding: '40px', color: '#EF4444' }}>
-        Error loading markets: {error.message}
+        <div>Error loading markets: {error.message}</div>
+        <button onClick={() => refetch()} style={{ marginTop: '16px', padding: '8px 16px' }}>
+          Retry
+        </button>
       </div>
     );
   }
@@ -105,17 +126,49 @@ export const MarketList = () => {
   }
 
   return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
-        gap: '16px',
-        padding: '16px',
-      }}
-    >
-      {filteredAndSortedMarkets.map((market) => (
-        <MarketCard key={`${market.source}-${market.id}`} market={market} onClick={handleMarketClick} />
-      ))}
+    <div>
+      {!isConnected && (
+        <div style={{ padding: '8px 16px', backgroundColor: '#FEF3C7', color: '#92400E', borderRadius: '4px', marginBottom: '16px' }}>
+          <span>Not connected to real-time updates</span>
+        </div>
+      )}
+      
+      <div
+        ref={parentRef}
+        style={{
+          height: '800px',
+          overflow: 'auto',
+          padding: '16px',
+        }}
+      >
+        <div
+          style={{
+            height: `${rowVirtualizer.getTotalSize()}px`,
+            width: '100%',
+            position: 'relative',
+          }}
+        >
+          {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+            const market = filteredAndSortedMarkets[virtualRow.index];
+            return (
+              <div
+                key={virtualRow.key}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  transform: `translateY(${virtualRow.start}px)`,
+                  height: virtualRow.size,
+                  padding: '0 8px',
+                }}
+              >
+                <MarketCard market={market} onClick={handleMarketClick} />
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 };
