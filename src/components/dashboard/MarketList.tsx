@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { useMarkets } from '../../hooks/useMarkets';
 import { useDashboardStore } from '../../store/dashboardStore';
 import { MarketCard } from '../market/MarketCard';
@@ -8,7 +8,7 @@ export const MarketList = () => {
   const { data: markets, isLoading, error } = useMarkets();
   const { filters, sort, setSelectedMarketId } = useDashboardStore();
 
-  // Filter and sort markets
+  // Filter and sort markets with memoization
   const filteredAndSortedMarkets = useMemo(() => {
     if (!markets) return [];
 
@@ -72,9 +72,13 @@ export const MarketList = () => {
     return result;
   }, [markets, filters, sort]);
 
-  const handleMarketClick = (market: Market) => {
-    setSelectedMarketId(market.id);
-  };
+  // Memoized callback for market click
+  const handleMarketClick = useCallback(
+    (market: Market) => {
+      setSelectedMarketId(market.id);
+    },
+    [setSelectedMarketId]
+  );
 
   if (isLoading) {
     return (

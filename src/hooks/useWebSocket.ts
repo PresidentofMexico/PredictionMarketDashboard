@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
+import { useThrottle } from './usePerformance';
 import type { WebSocketMessage } from '../types';
 
 interface UseWebSocketOptions {
@@ -8,6 +9,7 @@ interface UseWebSocketOptions {
   onOpen?: () => void;
   onClose?: () => void;
   enabled?: boolean;
+  throttleMs?: number; // Throttle WebSocket messages
 }
 
 export const useWebSocket = ({
@@ -17,9 +19,13 @@ export const useWebSocket = ({
   onOpen,
   onClose,
   enabled = true,
+  throttleMs = 100, // Default: throttle to max 10 messages per second
 }: UseWebSocketOptions) => {
   const ws = useRef<WebSocket | null>(null);
   const reconnectTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Throttled message handler to prevent overwhelming the UI
+  const throttledOnMessage = useThrottle(onMessage, throttleMs);
 
   const connect = useCallback(() => {
     if (!enabled) return;
@@ -35,7 +41,7 @@ export const useWebSocket = ({
       ws.current.onmessage = (event) => {
         try {
           const message = JSON.parse(event.data) as WebSocketMessage;
-          onMessage(message);
+          throttledOnMessage(message);
         } catch (error) {
           console.error('Error parsing WebSocket message:', error);
         }
@@ -59,7 +65,7 @@ export const useWebSocket = ({
     } catch (error) {
       console.error('Error creating WebSocket:', error);
     }
-  }, [url, onMessage, onError, onOpen, onClose, enabled]);
+  }, [url, throttledOnMessage, onError, onOpen, onClose, enabled]);
 
   const disconnect = useCallback(() => {
     if (reconnectTimeout.current) {

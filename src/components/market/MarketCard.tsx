@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { Market } from '../../types';
 import { formatPercentage, formatLargeNumber, formatDate } from '../../utils/formatters';
 
@@ -6,7 +7,7 @@ interface MarketCardProps {
   onClick?: (market: Market) => void;
 }
 
-export const MarketCard = ({ market, onClick }: MarketCardProps) => {
+const MarketCardComponent = ({ market, onClick }: MarketCardProps) => {
   const sourceColor = market.source === 'kalshi' ? '#00D4AA' : '#7C3AED';
   const statusColor =
     market.status === 'open' ? '#10B981' : market.status === 'closed' ? '#F59E0B' : '#6B7280';
@@ -132,3 +133,6 @@ export const MarketCard = ({ market, onClick }: MarketCardProps) => {
     </div>
   );
 };
+
+// Memoized component - only re-renders when market or onClick changes
+export const MarketCard = memo(MarketCardComponent);
