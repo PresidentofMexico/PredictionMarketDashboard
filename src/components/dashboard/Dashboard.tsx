@@ -1,8 +1,17 @@
+import { useDashboardStore } from '../../store/dashboardStore';
 import { MarketFilters } from './MarketFilters';
 import { MarketSortControls } from './MarketSortControls';
 import { MarketList } from './MarketList';
+import { MarketDetail } from '../market/MarketDetail';
 
 export const Dashboard = () => {
+  const { selectedMarketId } = useDashboardStore();
+
+  // Show market detail if a market is selected
+  if (selectedMarketId) {
+    return <MarketDetail />;
+  }
+
   return (
     <div
       style={{
