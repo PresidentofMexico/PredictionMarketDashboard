@@ -1,73 +1,155 @@
-# React + TypeScript + Vite
+# PredictionMarketDashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, real-time dashboard for tracking sports and entertainment prediction markets from Kalshi and Polymarket.
 
-Currently, two official plugins are available:
+![Dashboard Preview](https://github.com/user-attachments/assets/a295fb6e-4b94-4bea-8030-8d2726b708bf)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## React Compiler
+- **Multi-Source Integration**: Aggregate data from both Kalshi and Polymarket
+- **Real-Time Updates**: WebSocket integration for live market data
+- **Advanced Filtering**: Filter by source, category, status, or search text
+- **Flexible Sorting**: Sort by volume, price, close time, or created time
+- **Market Details**: View detailed market information with price charts and order books
+- **Performance Optimized**: Memoization, throttling, and efficient rendering
+- **Type-Safe**: Full TypeScript coverage with comprehensive type definitions
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Getting Started
 
-## Expanding the ESLint configuration
+### Prerequisites
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Node.js 18+ 
+- npm or yarn
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Installation
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+```bash
+# Clone the repository
+git clone https://github.com/PresidentofMexico/PredictionMarketDashboard.git
+cd PredictionMarketDashboard
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Development
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```bash
+# Run linter
+npm run lint
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Run type checking
+npm run type-check
+
+# Preview production build
+npm run preview
 ```
+
+## Architecture
+
+### Tech Stack
+
+- **Frontend Framework**: React 18 with TypeScript
+- **Build Tool**: Vite
+- **State Management**: React Query + Zustand
+- **Styling**: Inline styles (ready for migration to CSS modules/Tailwind)
+- **Charts**: Lightweight Charts (prepared for integration)
+
+### Project Structure
+
+```
+src/
+├── components/
+│   ├── dashboard/       # Dashboard layout and controls
+│   └── market/          # Market-specific components
+├── hooks/               # Custom React hooks
+├── services/            # API integration layer
+├── store/               # Zustand state management
+├── types/               # TypeScript type definitions
+└── utils/               # Utility functions
+```
+
+### Key Components
+
+#### Services Layer
+- **marketService.ts**: Unified interface for both APIs
+- **kalshi.ts**: Kalshi API integration
+- **polymarket.ts**: Polymarket API integration
+- **normalization.ts**: Normalize responses across platforms
+
+#### State Management
+- **React Query**: Server state, caching, and refetching
+- **Zustand Store**: UI state (filters, sorting, selection)
+- **WebSocket Hooks**: Real-time data with throttling
+
+#### Performance
+- React.memo for component memoization
+- useCallback for event handler optimization
+- useMemo for expensive computations
+- Throttled WebSocket messages (10/second)
+- Debounced search inputs
+
+## API Integration
+
+Currently using mock data. To integrate real APIs:
+
+### 1. Configure Environment Variables
+
+Create `.env.local`:
+
+```env
+VITE_KALSHI_API_KEY=your_kalshi_key
+VITE_KALSHI_API_URL=https://api.kalshi.com/trade-api/v2
+VITE_POLYMARKET_API_URL=https://gamma-api.polymarket.com
+VITE_WEBSOCKET_URL=wss://your-websocket-url
+```
+
+### 2. Update Service Files
+
+Update `src/services/kalshi.ts` and `src/services/polymarket.ts` with real API calls.
+
+### 3. Configure WebSocket
+
+Update WebSocket URLs in your components that use `useWebSocket`.
+
+## Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
+
+## Features Roadmap
+
+- [x] Project setup with Vite + React + TypeScript
+- [x] API service layer for Kalshi and Polymarket
+- [x] State management with React Query and Zustand
+- [x] Dashboard UI with filtering and sorting
+- [x] Market detail view with visualizations
+- [x] Performance optimizations
+- [ ] Real API integration
+- [ ] Advanced charting with Lightweight Charts
+- [ ] User authentication
+- [ ] Portfolio tracking
+- [ ] Price alerts and notifications
+- [ ] Historical data analysis
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+MIT License
+
+## Acknowledgments
+
+- Built with [React](https://react.dev/)
+- Powered by [Vite](https://vitejs.dev/)
+- State management by [React Query](https://tanstack.com/query) and [Zustand](https://github.com/pmndrs/zustand)
